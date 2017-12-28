@@ -114,7 +114,9 @@ def cancel(bot, update):
 def reply_message(msg, next_step=None):
     def command(bot, update, user_data=False):
         user = update.message.from_user
-        logger.info("Published by of %s", user.first_name)
+        input_text = update.message.text
+        logger.info("User %s sent %s data: %s ", user.first_name, msg,
+                    input_text)
         update.message.reply_text(get_message(msg))
         return next_step
 

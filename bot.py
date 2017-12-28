@@ -33,9 +33,9 @@ MESSAGES = {
     'skip_location': 'Ok, non te olvides de volver a anuncar o evento'
                      'cando teña pechado o lugar! Agora por favor '
                      'introduce o enlace a información do evento',
-    'link': 'Grazas! Case terminamos. Introduze por favor unha breve descrición '
-            'do evento (500 chars max). Se todavía non está pechada podes omitir '
-            'con /omitir',
+    'link': 'Grazas! Case terminamos. Introduze por favor unha breve '
+            'descrición do evento (500 chars max). Se todavía non está '
+            'pechada podes omitir con /omitir',
     'description': '¡Perfecto! ¿Queres publicar o evento?. Esta acción '
                    'publicará o evento no canle de VigoTech e non '
                    'se pode desfacer. Preme `non` en outro caso.',
@@ -92,13 +92,12 @@ def skip_description(bot, update):
 
     user = update.message.from_user
     logger.info("User %s did not send a description.", user.first_name)
-    update.message.reply_text('Ok, recorda que unha breve descrición sempre '
-                              'está e de interese '
-                              '¿Queres publicar o evento?. Esta acción '
-                              'publicará o evento no canle de VigoTech e non '
-                              'se pode desfacer. Preme `non` en outro caso.',
-                              reply_markup=ReplyKeyboardMarkup(reply_keyboard,
-                                                               one_time_keyboard=True))
+    update.message.reply_text(
+        'Ok, recorda que unha breve descrición sempre está e de interese '
+        '¿Queres publicar o evento?. Esta acción publicará o evento no canle '
+        'de VigoTech e non se pode desfacer. Preme `non` en outro caso.',
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard,
+                                         one_time_keyboard=True))
 
     return CONFIRM
 
@@ -133,7 +132,6 @@ def main():
     dispatcher.add_handler(CommandHandler("start", reply_message('start')))
     dispatcher.add_handler(CommandHandler("help", reply_message('help')))
 
-    # Add conversation handler with the states GROUP, DATE, LOCATION, LINK and DESCRIPTION
     conv_handler = ConversationHandler(
         entry_points=[
             CommandHandler('publicar', reply_message('publish', GROUP))],
@@ -154,8 +152,9 @@ def main():
                    CommandHandler('omitir', skip_description)],
             DESCRIPTION: [MessageHandler(Filters.text, description,
                                          pass_user_data=True)],
-            CONFIRM: [RegexHandler('^(Si!|Non)$', reply_message('confirm',
-                                                                ConversationHandler.END),
+            CONFIRM: [RegexHandler('^(Si!|Non)$',
+                                   reply_message('confirm',
+                                                 ConversationHandler.END),
                                    pass_user_data=True)],
         },
 

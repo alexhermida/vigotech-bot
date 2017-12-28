@@ -10,4 +10,14 @@ que forman parte de VigoTech a través dun cánle de Telegram.
 
 ## Descrición
 
+É un bot conversacional que asiste na publicación dos eventos no canle de 
+VigoTech.
+
+/publicar evento
+
+1. Grupo organizador do evento
+1. Data do evento (DD/MM/YY)
+1. Lugar do evento
+1. Breve descrición (markdown)
+1. Enlace o evento
 

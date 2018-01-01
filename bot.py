@@ -1,3 +1,5 @@
+from functools import wraps
+
 import logging
 
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
@@ -20,8 +22,8 @@ MESSAGES = {
              'publicar o evento no canle oficial de '
              'VigoTech. \n\n Envía /publicar para comezar. \n'
              'En calquer momento podes cancelar enviando'
-             ' /cancel ',
-    'help': 'O Bot está en desenvolvemento. Envía /start para comezar',
+             ' /cancelar ',
+    'help': 'O Bot está en desenvolvemento. Envía /comezar para comezar',
     'publish': 'Imos comezar! '
                'Por favor, introduce o nome do teu grupo.',
     'group': 'Grazas! Agora por favor introduce a data do '
@@ -45,13 +47,27 @@ MESSAGES = {
                         'publicará o evento no canle de VigoTech e non '
                         'se pode desfacer. Preme `non` en outro caso.',
     'confirm': '¡Grazas por publicar o teu evento! Podes velo '
-               'en @VigoTech'
+               'en @VigoTech',
+    'cancelar': 'Grazas! Espero ser de axuda a próxima vez.',
+    'unknown': 'Disculpa non alcanzo a entender a tua mensaxe. ¿Podes envialo '
+               'de novo?'
 
 }
 
 
 def get_message(command):
     return MESSAGES.get(command)
+
+
+def restricted(func):
+    @wraps(func)
+    def wrapped(bot, update, *args, **kwargs):
+        user_id = update.effective_user.id
+        if user_id not in settings.LIST_OF_ADMINS:
+            print("Unauthorized access denied for {}.".format(user_id))
+            return
+        return func(bot, update, *args, **kwargs)
+    return wrapped
 
 
 def error(bot, update, error):
@@ -62,9 +78,7 @@ def error(bot, update, error):
 def skip_location(bot, update):
     user = update.message.from_user
     logger.info("User %s did not send a location.", user.first_name)
-    update.message.reply_text('Ok, non te olvides de volver a anuncar o evento'
-                              'cando teña pechado o lugar! Agora por favor '
-                              'introduce o enlace a información do evento')
+    update.message.reply_text(get_message('skip_location'))
 
     return LINK
 
@@ -76,13 +90,10 @@ def description(bot, update, user_data):
     logger.info("Event description %s by %s", update.message.text,
                 user.first_name)
     update.message.reply_text(
-        '¡Perfecto! ¿Queres publicar o evento?. Esta acción '
-        'publicará o evento no canle de VigoTech e non'
-        'se pode desfacer. Preme `non` en outro caso.',
+        get_message('description'),
         reply_markup=ReplyKeyboardMarkup(reply_keyboard,
                                          one_time_keyboard=True))
     user_data['description'] = update.message.text
-    print(user_data)
 
     return CONFIRM
 
@@ -93,9 +104,7 @@ def skip_description(bot, update):
     user = update.message.from_user
     logger.info("User %s did not send a description.", user.first_name)
     update.message.reply_text(
-        'Ok, recorda que unha breve descrición sempre está e de interese '
-        '¿Queres publicar o evento?. Esta acción publicará o evento no canle '
-        'de VigoTech e non se pode desfacer. Preme `non` en outro caso.',
+        get_message('skip_description'),
         reply_markup=ReplyKeyboardMarkup(reply_keyboard,
                                          one_time_keyboard=True))
 
@@ -105,13 +114,14 @@ def skip_description(bot, update):
 def cancel(bot, update):
     user = update.message.from_user
     logger.info("User %s canceled the conversation.", user.first_name)
-    update.message.reply_text('Bye! I hope we can talk again some day.',
+    update.message.reply_text(get_message('cancelar'),
                               reply_markup=ReplyKeyboardRemove())
 
     return ConversationHandler.END
 
 
 def reply_message(msg, next_step=None):
+    @restricted
     def command(bot, update, user_data=False):
         user = update.message.from_user
         input_text = update.message.text
@@ -131,8 +141,8 @@ def main():
     dispatcher = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dispatcher.add_handler(CommandHandler("start", reply_message('start')))
-    dispatcher.add_handler(CommandHandler("help", reply_message('help')))
+    dispatcher.add_handler(CommandHandler("comezar", reply_message('start')))
+    dispatcher.add_handler(CommandHandler("axuda", reply_message('help')))
 
     conv_handler = ConversationHandler(
         entry_points=[
@@ -160,7 +170,7 @@ def main():
                                    pass_user_data=True)],
         },
 
-        fallbacks=[CommandHandler('cancel', cancel)]
+        fallbacks=[CommandHandler('cancelar', cancel)]
     )
 
     dispatcher.add_handler(conv_handler)

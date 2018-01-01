@@ -63,7 +63,7 @@ def restricted(func):
     @wraps(func)
     def wrapped(bot, update, *args, **kwargs):
         user_id = update.effective_user.id
-        if user_id not in settings.LIST_OF_ADMINS:
+        if user_id not in settings.TELEGRAM_ADMINS_LIST:
             print("Unauthorized access denied for {}.".format(user_id))
             return
         return func(bot, update, *args, **kwargs)

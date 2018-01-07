@@ -70,7 +70,7 @@ def restricted(func):
     def wrapped(bot, update, *args, **kwargs):
         user_id = update.effective_user.id
         if user_id not in settings.TELEGRAM_ADMINS_LIST:
-            print("Unauthorized access denied for {}.".format(user_id))
+            logger.warning("Unauthorized access denied for %s", user_id)
             return
         return func(bot, update, *args, **kwargs)
 
@@ -80,15 +80,6 @@ def restricted(func):
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
-
-
-def cancel(bot, update):
-    user = update.message.from_user
-    logger.info("User %s canceled the conversation.", user.first_name)
-    update.message.reply_text(get_message('cancelar'),
-                              reply_markup=ReplyKeyboardRemove())
-
-    return ConversationHandler.END
 
 
 def description(bot, update, user_data):
@@ -185,7 +176,10 @@ def main():
                                    pass_user_data=True)],
         },
 
-        fallbacks=[CommandHandler('cancelar', cancel)]
+        fallbacks=[CommandHandler('cancelar',
+                                  reply_message('cancel',
+                                                ConversationHandler.END))]
+
     )
 
     dispatcher.add_handler(conv_handler)

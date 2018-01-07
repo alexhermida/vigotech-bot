@@ -1,11 +1,9 @@
+import logging
 from functools import wraps
 
-import logging
-
-from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
-from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
-                          RegexHandler,
-                          ConversationHandler)
+from telegram import ParseMode, ReplyKeyboardMarkup
+from telegram.ext import (CommandHandler, ConversationHandler, Filters,
+                          MessageHandler, RegexHandler, Updater)
 
 import settings
 
@@ -110,13 +108,33 @@ def skip_description(bot, update):
     return CONFIRM
 
 
+def get_channel_message(data):
+    msg = f"*{data['group']}* celebrará o seu próximo " \
+          f"evento o día *{data['date']}* \n" \
+          f"Lugar: {data['location']}\n\n" \
+          f"{data['description']}\n\n" \
+          f"{data['link']}"
+
+    return msg
+
+
 def send_publication(bot, update, user_data):
     user = update.message.from_user
+    text = update.message.text
+
     logger.info("%s wants to publish?: %s", user.first_name,
                 update.message.text)
     logger.info("Userdata %s", user_data)
 
-    update.message.reply_text(get_message('confirm'))
+    if text == 'Si!':
+        formatted_message = get_channel_message(user_data)
+        bot.send_message(chat_id=settings.TELEGRAM_CHANNEL_ID,
+                         text=formatted_message,
+                         parse_mode=ParseMode.MARKDOWN)
+
+        update.message.reply_text(get_message('confirm'))
+    else:
+        update.message.reply_text(get_message('cancel'))
 
     return ConversationHandler.END
 

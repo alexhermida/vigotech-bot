@@ -36,12 +36,13 @@ MESSAGES = {
             'está pechada podes omitir con /omitir',
     'location': '¡Grazas! Agora por favor introduce o enlace a '
                 'web do evento',
-    'skip_location': 'Ok, non te olvides de volver a anuncar o evento'
-                     'cando teñas pechado o lugar! Agora por favor '
-                     'introduce o enlace a información do evento',
+    'skip_location': 'Ok, non te olvides de volver a anunciar o evento '
+                     'cando teñas pechado o lugar!.\n Agora por favor '
+                     'introduce o *enlace a información do evento*',
     'link': '¡Grazas! Case terminamos. Introduze por favor unha breve '
-            'descrición do evento (500 chars max). Se todavía non está '
-            'pechada podes omitir con /omitir',
+            'descrición do evento (500 chars max) [Markdown info]'
+            '(https://core.telegram.org/bots/api#formatting-options). '
+            'Se todavía non está pechada podes omitir con /omitir',
     'description': '¡Perfecto! ¿Queres publicar o evento?. Esta acción '
                    'publicará o evento no canle de VigoTech e non '
                    'se pode desfacer. Preme `non` en outro caso.',
@@ -90,7 +91,7 @@ def description(bot, update, user_data):
         get_message('description'),
         reply_markup=ReplyKeyboardMarkup(reply_keyboard,
                                          one_time_keyboard=True))
-    user_data['description'] = update.message.text
+    user_data['description'] = update.message.text_markdown
 
     return CONFIRM
 
@@ -109,11 +110,11 @@ def skip_description(bot, update):
 
 
 def get_channel_message(data):
-    msg = f"*{data['group']}* celebrará o seu próximo " \
-          f"evento o día *{data['date']}* \n" \
-          f"Lugar: {data['location']}\n\n" \
-          f"{data['description']}\n\n" \
-          f"{data['link']}"
+    msg = f"*{data.get('group')}* celebrará o seu próximo " \
+          f"evento o día *{data.get('date')}* \n" \
+          f"Lugar: {data.get('location', 'Sen definir')}\n\n" \
+          f"{data.get('description', '')}\n" \
+          f"{data.get('link')}"
 
     return msg
 
@@ -150,7 +151,9 @@ def reply_message(msg, next_step=None):
         user_data[msg] = input_text
         logger.info("Userdata %s", user_data)
 
-        update.message.reply_text(get_message(msg))
+        update.message.reply_text(get_message(msg),
+                                  parse_mode=ParseMode.MARKDOWN,
+                                  disable_web_page_preview=True)
         return next_step
 
     return command

@@ -1,5 +1,7 @@
 # Vigotech.org Telegram bot
 
+[![Build Status](https://travis-ci.org/alexhermida/vigotech-bot.svg?branch=master)](https://travis-ci.org/alexhermida/vigotech-bot)
+
 ## Introducción
 
 Bot para a notificación de eventos, actividades e novas relacionadas cos grupos

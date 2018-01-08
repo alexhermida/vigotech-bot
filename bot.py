@@ -1,11 +1,10 @@
 import logging
 from functools import wraps
 
+import settings
 from telegram import ParseMode, ReplyKeyboardMarkup
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
                           MessageHandler, RegexHandler, Updater)
-
-import settings
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

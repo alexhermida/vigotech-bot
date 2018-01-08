@@ -1,6 +1,5 @@
 ---
 sudo: false
-dist: trusty
 language: python
 matrix:
   include:
@@ -12,8 +11,6 @@ install:
   - pip install tox
   - pip install coveralls
 script:
-  - pytest tests.py
-  - flake8 .
-  - isort --check-only
+  - tox -e $TOXENV
 after_success:
   - coveralls

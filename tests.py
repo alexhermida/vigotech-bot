@@ -1,11 +1,10 @@
 from unittest.mock import Mock, patch
 
 import pytest
-
 from telegram import Bot
 from telegram.ext import Updater
 
-from bot import reply_message, MESSAGES
+from bot import MESSAGES, reply_message
 
 
 @pytest.fixture(scope='function')

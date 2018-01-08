@@ -12,6 +12,7 @@ install:
   - pip install tox
   - pip install coveralls
 script:
-  - tox -e $TOXENV
+  - flake8 .
+  - isort --check-only
 after_success:
   - coveralls

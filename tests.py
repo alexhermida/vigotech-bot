@@ -15,11 +15,13 @@ def updater():
         up.stop()
 
 
+@pytest.mark.parametrize('command, next',
+                         [('start', None), ('publish', 'group')])
 @patch('settings.TELEGRAM_ADMINS_LIST', [1])
-def test_reply_message(updater):
-    response = reply_message('start')
+def test_reply_message(updater, command, next):
+    response = reply_message(command, next)
 
     update = Mock(effective_user=Mock(id=1), message=Mock())
     next_step = response(updater.bot, update=update)
 
-    assert not next_step
+    assert next_step == next
